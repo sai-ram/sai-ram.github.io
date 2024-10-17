@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sai Mattancheril</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .timeline {
+            position: relative;
+            height: 100px;
+            width: 100%;
+            margin-top: 20px;
+            background: #f4f4f4;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: black;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .timeline-node {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .timeline-node.active {
+            background-color: #e74c3c;
+        }
+        .timeline-node-label {
+            position: absolute;
+            top: -30px;
+            text-align: center;
+            font-size: 12px;
+            width: 100px;
+            transform: translateX(-50%);
+        }
+        .timeline-node-year {
+            position: absolute;
+            top: 25px;
+            text-align: center;
+            font-size: 12px;
+            width: 100px;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Sai Mattancheril</h1>
+    <div id="map"></div>
+    <div class="timeline" id="timeline">
+        <div class="timeline-line"></div>
+    </div>
+
+    <script>
+        // Sample JSON data
+        const resumeData = {
+            "jobs": [
+        {
+            "title": "Director, Data & Product Engineering",
+            "company": "FedEx Dataworks",
+            "division": "Supply Chains & E-Commerce",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "keyProjects": [
+                "Global Delivery Prediction Platform (GDPP)",
+                "FedEx Surround",
+                "Fulfillment engines and delivery products via APIs and FDX platform",
+                "Sustainability Insights API"
+            ],
+            "keyAchievements": [
+                "Reduced latency of GDPP by 94% and improved throughput by 70%",
+                "Delivered a 2-hour estimated delivery time window",
+                "Reduced cloud costs by over $5 million annually through optimizations",
+                "Experimented with leading-edge ML technologies including LLMs"
+            ],
+            "technologies": [
+                "Data Engineering",
+                "Machine Learning",
+                "LLMs",
+                "AWS",
+                "APIs",
+                "Cloud Platforms"
+            ],
+            "responsibilities": [
+                "Leading a team of data engineers, product managers, and data scientists",
+                "Developing data-driven products for smarter supply chains",
+                "Leveraging cloud platforms and data science technologies",
+                "Driving significant business outcomes through innovation"
+            ]
+        },
+        {
+            "title": "Manager, IT",
+            "company": "FedEx Services",
+            "division": "Ground Systems",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "keyProjects": [
+                "Early Package Visibility (EPV)",
+                "Locations Inner Flexible Edge (LIFE)"
+            ],
+            "keyAchievements": [
+                "Delivered EPV in less than 3 months",
+                "Maintained 100% uptime for EPV over 18 months",
+                "Achieved automation savings of ~3000 hours/month",
+                "LIFE and EPV were among the first initiatives to be 'Autobahn'ed at FedEx"
+            ],
+            "technologies": [
+                "Automation",
+                "Cloud Technologies",
+                "Operational Optimization"
+            ],
+            "responsibilities": [
+                "Managing a team of architects, designers, developers, and analysts",
+                "Developing products focused on operational optimization and visibility",
+                "Integrating LIFE with Locations EFS",
+                "Overseeing offshore development teams"
+            ]
+        },
+        {
+            "title": "Manager, Innovation",
+            "company": "FedEx Services",
+            "division": "Innovation & Design",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "keyAchievements": [
+                "Improved FedEx mobile app ratings by over 35%",
+                "Represented IT in Design Driven Innovation (DDI) core team",
+                "Facilitated design thinking sessions across multiple groups",
+                "Stewarded innovation programs leading to realized crowd-sourced ideas"
+            ],
+            "technologies": [
+                "Mobile Development",
+                "Data Analytics",
+                "E-Commerce Solutions",
+                "Design Thinking",
+                "AI",
+                "Big Data",
+                "IoT"
+            ],
+            "responsibilities": [
+                "Managing designers and technologists in innovation initiatives",
+                "Evaluating data models for battery life prediction",
+                "Architecting platform solutions for unattended delivery use cases",
+                "Exploring opportunity spaces in emerging technologies"
+            ]
+        },
+        {
+            "title": "Technical Principal",
+            "company": "FedEx Services",
+            "division": "FedEx.com Development",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "keyAchievements": [
+                "Transitioned SenseAware to cloud architecture",
+                "Improved geofence entry accuracy for SenseAware",
+                "Developed custom web analytics dashboards for FedEx.com applications",
+                "Pioneered use of Struts, Spring, Maven, and Log4j at FedEx.com"
+            ],
+            "technologies": [
+                "J2EE",
+                "Cloud Architecture",
+                "Web Analytics",
+                "Struts",
+                "Spring",
+                "Maven",
+                "Log4j"
+            ],
+            "responsibilities": [
+                "Leading architecture and development of FedEx.com applications",
+                "Developing proof of concepts for rich client shipping applications",
+                "Managing geographically distributed technical teams"
+            ]
+        },
+        {
+            "title": "Software Consultant",
+            "company": "Quanttus",
+            "location": "Cambridge, MA, USA",
+            "coordinates": [42.3736, -71.1097],
+            "dateRange": "Date not specified",
+            "keyAchievements": [
+                "Implemented lambda architecture using Apache Storm and Cascading",
+                "Set up AWS infrastructure with Apache Spark and Kafka",
+                "Optimized AWS costs by $2,000/month",
+                "Enhanced Scala programs for data analysis"
+            ],
+            "technologies": [
+                "Apache Storm",
+                "Cascading",
+                "AWS",
+                "Apache Spark",
+                "Kafka",
+                "Scala",
+                "Data Analysis"
+            ],
+            "responsibilities": [
+                "Implementing real-time data processing infrastructure",
+                "Maintaining and enhancing data analysis programs",
+                "Optimizing cloud infrastructure for cost efficiency"
+            ]
+        },
+        {
+            "title": "Software Consultant",
+            "company": "Freelance",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "keyAchievements": [
+                "Developed account aggregation product for uMonitor.com",
+                "Created GoalTrack for Morgan Keegan",
+                "Co-founded Krikle, an AR iPhone application",
+                "Provided Java Development training in Memphis",
+                "Helped raise $5 million in venture capital for uMonitor.com"
+            ],
+            "technologies": [
+                "Java",
+                "Account Aggregation",
+                "Augmented Reality",
+                "iOS Development",
+                "Financial Software"
+            ],
+            "responsibilities": [
+                "Providing freelance software design and development",
+                "Developing financial and mobile applications",
+                "Conducting professional training sessions",
+                "Entrepreneurship in tech startups"
+            ]
+        },
+        {
+            "title": "Software Consultant",
+            "company": "International Paper (IP)",
+            "location": "Memphis, TN, USA",
+            "coordinates": [35.1495, -90.0490],
+            "dateRange": "Date not specified",
+            "responsibilities": [
+                "Consulted on software development projects"
+            ]
+        },
+        {
+            "title": "Assistant Consultant",
+            "company": "Tata Consultancy Services (TCS)",
+            "location": "Chennai, India",
+            "coordinates": [13.0827, 80.2707],
+            "dateRange": "Date not specified",
+            "responsibilities": [
+                "Provided consultancy services in software engineering"
+            ]
+        },
+        {
+            "title": "Senior Engineer",
+            "company": "Magneto Hydro Dynamic Research Center (MHD)",
+            "location": "Tiruchirappalli, India",
+            "coordinates": [10.7905, 78.7047],
+            "dateRange": "Date not specified",
+            "responsibilities": [
+                "Worked on research projects in magneto hydrodynamics"
+            ]
+        }
+    ],
+              "qualifications": [
+        {
+            "degree": "Ph.D. in Computer Science with a focus on AI",
+            "university": "Harvard University",
+            "location": "Cambridge, MA, USA",
+            "coordinates": [42.3770, -71.1167],
+            "dateRange": "2015 - 2018",
+            "keyAchievements": [
+                "Conducted research in Artificial Intelligence, NLP, and Deep Learning"
+            ],
+            "technologies": [
+                "Artificial Intelligence",
+                "Natural Language Processing",
+                "Deep Learning"
+            ]
+        },
+        {
+            "degree": "Master's in Electrical Engineering",
+            "university": "Indian Institute of Technology (IIT) Madras",
+            "location": "Chennai, India",
+            "coordinates": [13.0827, 80.2707],
+            "dateRange": "Date not specified",
+            "keyAchievements": [
+                "Scored 99.56 percentile in GATE exam"
+            ],
+            "technologies": [
+                "Electrical Engineering",
+                "Machine Learning",
+                "Data Structures",
+                "Algorithms"
+            ]
+        },
+        {
+            "degree": "Baccalaureate in Electrical Engineering",
+            "university": "College of Engineering, Guindy",
+            "location": "Chennai, India",
+            "coordinates": [13.0105, 80.2350],
+            "dateRange": "Date not specified",
+            "technologies": [
+                "Electrical Engineering"
+            ]
+        }
+    ]
+        };
+
+        // Initialize the map
+        const map = L.map('map').setView([37.7749, -122.4194], 3);
+
+        // Add a tile layer to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Track all markers and timeline nodes
+        const markers = [];
+        const timelineNodes = [];
+
+        // Sort all events by start year in ascending order
+        const allEvents = [...resumeData.qualifications, ...resumeData.jobs].sort((a, b) => {
+            const yearA = parseInt(a.dateRange.split(' - ')[0]);
+            const yearB = parseInt(b.dateRange.split(' - ')[0]);
+            return yearA - yearB;
+        });
+
+        // Function to add markers to the map
+        function addMarker(data, index) {
+            const marker = L.marker(data.coordinates).addTo(map);
+            markers.push(marker);
+            let popupContent = `<strong>${data.company || data.university}</strong><br>`;
+            popupContent += `<em>${data.dateRange}</em><br>`;
+            popupContent += `<strong>Key Achievements:</strong> ${data.keyAchievements}<br>`;
+            if (data.company) {
+                popupContent += `<strong>Technologies:</strong> ${data.technologies}<br>`;
+                popupContent += `<strong>Responsibilities:</strong> ${data.responsibilities}<br>`;
+            }
+            marker.bindPopup(popupContent);
+            marker.on('click', () => {
+                highlightTimelineNode(index);
+            });
+        }
+
+        // Add markers to the map
+        allEvents.forEach((event, index) => {
+            addMarker(event, index);
+        });
+
+        // Function to add timeline items
+        function addTimelineItems(data) {
+            const timelineContainer = document.getElementById('timeline');
+            data.forEach((entry, idx) => {
+                const timelineNode = document.createElement('div');
+                timelineNode.classList.add('timeline-node');
+                const position = idx * (100 / (data.length - 1));
+                timelineNode.style.left = `${position}%`;
+                timelineNode.title = `${entry.company || entry.university} (${entry.dateRange})`;
+                timelineNode.dataset.index = idx;
+                timelineNode.addEventListener('click', () => {
+                    map.panTo(entry.coordinates);
+                    highlightMarker(idx);
+                });
+                timelineNode.addEventListener('mouseover', () => {
+                    highlightMarker(idx);
+                });
+                timelineNode.addEventListener('mouseout', () => {
+                    clearHighlightMarker();
+                });
+
+                // Add label for company/university name
+                const nodeLabel = document.createElement('div');
+                nodeLabel.classList.add('timeline-node-label');
+                nodeLabel.innerText = entry.company || entry.university;
+                timelineNode.appendChild(nodeLabel);
+
+                // Add label for year
+                const nodeYear = document.createElement('div');
+                nodeYear.classList.add('timeline-node-year');
+                nodeYear.innerText = entry.dateRange;
+                timelineNode.appendChild(nodeYear);
+
+                timelineContainer.appendChild(timelineNode);
+                timelineNodes.push(timelineNode);
+            });
+        }
+
+        // Add items to the timeline
+        addTimelineItems(allEvents);
+
+        // Function to highlight a timeline node
+        function highlightTimelineNode(index) {
+            timelineNodes.forEach((node, idx) => {
+                if (idx === index) {
+                    node.classList.add('active');
+                    node.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                } else {
+                    node.classList.remove('active');
+                }
+            });
+        }
+
+        // Function to highlight a marker on the map
+        function highlightMarker(index) {
+            markers.forEach((marker, idx) => {
+                if (idx === index) {
+                    marker.openPopup();
+                } else {
+                    marker.closePopup();
+                }
+            });
+        }
+
+        // Function to clear marker highlights
+        function clearHighlightMarker() {
+            markers.forEach((marker) => {
+                marker.closePopup();
+            });
+        }
+    </script>
+</body>
+</html>
